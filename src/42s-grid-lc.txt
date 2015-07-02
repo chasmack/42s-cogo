@@ -1,0 +1,515 @@
+# 42s-grid-lc - routines for forward and inverse
+# calculation of Lambert Conic conformal coordinates
+
+# SPZONE - user menu to select SPCS zone and units
+
+00 { 186-Byte Prgm }
+01>LBL "SPZONE"
+02 XEQ A
+19 LBL C
+05 "0401"
+06 KEY 2 GTO 02
+07 "0402"
+08 KEY 3 GTO 03
+13 "0403"
+14 KEY 4 GTO 04
+13 "0404"
+14 KEY 5 GTO 05
+13 "0405"
+14 KEY 6 GTO 06
+15 KEY 7 GTO D
+16 KEY 8 GTO D
+18 GTO 01
+19 LBL D
+05 "3601"
+06 KEY 2 GTO 12
+07 "3602"
+08 KEY 3 GTO 13
+13 "2701"
+14 KEY 4 GTO 14
+13 "2702"
+14 KEY 5 GTO 15
+13 "2703"
+14 KEY 6 GTO 16
+15 KEY 7 GTO C
+16 KEY 8 GTO C
+18 GTO 01
+
+02 LBL A
+01 "F"
+01 ASTO "ZONEID"
+03 "SFT:"
+04 KEY 1 XEQ B
+05 RTN
+
+22 LBL B
+01 CLA
+01 ASTO "ZONEID"
+23 "MTR:"
+24 KEY 1 XEQ A
+00 RTN
+
+00 LBL 01
+18 MENU
+20 STOP
+21 GTO 01
+
+# Zone parameters
+
+# 0401 California 01 (LC)
+00 LBL 02
+00 "L0401"
+02 40
+04 STO "P1"
+05 41.4
+06 ->HR
+07 STO "P2"
+08 -122
+10 STO "M0"
+11 39.2
+12 ->HR
+13 STO "P0"
+14 2E6
+15 STO "X0"
+16 5E5
+17 STO "Y0"
+00 GTO 00
+
+# 0402 California 02 (LC)
+00 LBL 03
+00 "L0402"
+02 38.2
+03 ->HR
+04 STO "P1"
+05 39.5
+06 ->HR
+07 STO "P2"
+08 -122
+10 STO "M0"
+11 37.4
+12 ->HR
+13 STO "P0"
+14 2E6
+15 STO "X0"
+16 5E5
+17 STO "Y0"
+00 GTO 00
+
+# 0403 California 03 (LC)
+00 LBL 04
+00 "L0403"
+02 37.04
+03 ->HR
+04 STO "P1"
+05 38.26
+06 ->HR
+07 STO "P2"
+08 -120.3
+09 ->HR
+10 STO "M0"
+11 36.3
+12 ->HR
+13 STO "P0"
+14 2E6
+15 STO "X0"
+16 5E5
+17 STO "Y0"
+00 GTO 00
+
+# 0404 California 04 (LC)
+00 LBL 05
+00 "L0404"
+02 36
+04 STO "P1"
+05 37.15
+06 ->HR
+07 STO "P2"
+08 -119
+10 STO "M0"
+11 35.2
+12 ->HR
+13 STO "P0"
+14 2E6
+15 STO "X0"
+16 5E5
+17 STO "Y0"
+00 GTO 00
+
+# 0405 California 05 (LC)
+00 LBL 06
+00 "L0405"
+02 34.02
+03 ->HR
+04 STO "P1"
+05 35.28
+06 ->HR
+07 STO "P2"
+08 -118
+10 STO "M0"
+11 33.3
+12 ->HR
+13 STO "P0"
+14 2E6
+15 STO "X0"
+16 5E5
+17 STO "Y0"
+00 GTO 00
+
+# 3601 Oregon North (LC)
+00 LBL 12
+00 "L3601"
+02 44.2
+03 ->HR
+04 STO "P1"
+05 46
+07 STO "P2"
+08 -120.3
+09 ->HR
+10 STO "M0"
+11 43.4
+12 ->HR
+13 STO "P0"
+14 2.5E6
+15 STO "X0"
+16 0
+17 STO "Y0"
+00 GTO 00
+
+# 3602 Oregon South (LC)
+00 LBL 13
+00 "L3602"
+02 42.2
+03 ->HR
+04 STO "P1"
+05 44
+07 STO "P2"
+08 -120.3
+09 ->HR
+10 STO "M0"
+11 41.4
+12 ->HR
+13 STO "P0"
+14 1.5E6
+15 STO "X0"
+16 0
+17 STO "Y0"
+00 GTO 00
+
+# 2701 Nevada East (TM)
+00 LBL 14
+00 "T2701"
+00 34.45
+00 ->HR
+02 STO "P0"
+00 -115.35
+00 ->HR
+03 STO "M0"
+03 0.9999
+04 STO "K0"
+04 2E5
+05 STO "X0"
+06 8E6
+06 STO "Y0"
+00 GTO 00
+
+# 2702 Nevada Central (TM)
+00 LBL 15
+00 "T2702"
+00 34.45
+00 ->HR
+02 STO "P0"
+00 -116.4
+00 ->HR
+03 STO "M0"
+03 0.9999
+04 STO "K0"
+04 5E5
+05 STO "X0"
+06 6E6
+06 STO "Y0"
+00 GTO 00
+
+# 2703 Nevada West (TM)
+00 LBL 16
+00 "T2703"
+00 34.45
+00 ->HR
+02 STO "P0"
+00 -118.35
+00 ->HR
+03 STO "M0"
+03 0.9999
+04 STO "K0"
+04 8E5
+05 STO "X0"
+06 4E6
+06 STO "Y0"
+00 GTO 00
+
+# Append any SFT units flag (F) to the ZONEID
+
+42 LBL 00
+00 ARCL "ZONEID"
+00 ASTO "ZONEID"
+43 CLMENU
+44 EXITALL
+00 VIEW "ZONEID"
+45 RTN
+46 .END.
+
+# LC->NE - convert geographic coords to SPCS northing/easting.
+#   Inverse of the SPCS to geographic calculation.
+
+00 { 165-Byte Prgm }
+01>LBL "LC->NE"
+05 XEQ "LC-INI"
+06 RCL "LAT"
+07 XEQ "LC-M"
+08 STO "M"
+09 RCL "LAT"
+10 XEQ "LC-T"
+11 STO "T"
+12 RCL "N"
+13 Y^X
+14 RCLx "F"
+15 RCLx "A"
+16 STO "R"
+17 RCL "LON"
+18 RCL- "M0"
+19 ->RAD
+20 RCLx "N"
+21 ->DEG
+22 STO "THETA"
+23 RCL "R"
+24 RCLx "N"
+25 RCL "A"
+26 RCLx "M"
+27 /
+28 STO "K"
+29 RCL "THETA"
+30 SIN
+31 RCLx "R"
+32 RCL+ "X0"
+33 STO "X"
+34 RCL "THETA"
+35 COS
+36 RCLx "R"
+37 RCL- "R0"
+38 +/-
+39 RCL+ "Y0"
+40 STO "Y"
+40 XEQ "LC-CLV"
+41 RCL "K"
+42 RCL "THETA"
+44 RCL "Y"
+44 RCLx "ZUNITS"
+45 RCL "X"
+44 RCLx "ZUNITS"
+46 RTN
+47 END
+
+# LC->GEO - convert SPCS northing/easting to geographic coords.
+#   Lat/lon returned as decimal degrees, north latitudes
+#   are positive, west longitudes are negative.
+#   Set SPCS zone parameters and ZONEID prior to conversion.
+
+00 { 202-Byte Prgm }
+01>LBL "LC->GEO"
+05 XEQ "LC-INI"
+
+13 RCL "X"
+14 RCL- "X0"
+15 RCL "R0"
+16 RCL- "Y"
+17 RCL+ "Y0"
+18 ->POL
+12 STO "R"
+19 X<>Y
+20 STO "THETA"
+
+21 RCL/ "N"
+22 RCL+ "M0"
+23 STO "LON"
+24 RCL "R"
+25 RCL "A"
+26 RCLx "F"
+27 /
+28 RCL "N"
+29 1/X
+30 Y^X
+31 STO "T"
+32 1
+33 ->POL
+34 X<>Y
+35 2
+36 x
+37 90
+38 X<>Y
+39 -
+40 STO "LAT0"
+41>LBL 01
+42 RCL "LAT0"
+43 SIN
+44 RCLx "E"
+45 1
+46 X<>Y
+47 -
+48 LASTX
+49 1
+50 +
+51 /
+52 RCL "E"
+53 2
+54 /
+55 Y^X
+56 RCLx "T"
+57 1
+58 ->POL
+59 X<>Y
+60 2
+61 x
+62 90
+63 X<>Y
+64 -
+65 STO "LAT"
+66 RCL- "LAT0"
+67 LASTX
+68 STO "LAT0"
+69 Rv
+70 ABS
+71 2E-9
+72 X<Y?
+73 GTO 01
+73 XEQ "LC-CLV"
+74 RCL "LAT"
+76 RCL "LON"
+78 RTN
+79 END
+
+# LC-INI - initialize ellipsoid/zone specific constants
+
+00 { 170-Byte Prgm }
+01>LBL "LC-INI"
+02 6378137
+03 STO "A"
+04 298.257223563
+05 1/X
+07 1
+08 -
+09 X^2
+10 1
+11 -
+12 +/-
+12 SQRT
+13 STO "E"
+
+06 RCL "P1"
+07 XEQ "LC-M"
+08 STO "M1"
+
+09 RCL "P2"
+10 XEQ "LC-M"
+11 STO "M2"
+
+12 RCL "P1"
+13 XEQ "LC-T"
+14 STO "T1"
+
+15 RCL "P2"
+16 XEQ "LC-T"
+17 STO "T2"
+
+18 RCL "P0"
+19 XEQ "LC-T"
+20 STO "T0"
+
+21 RCL "M1"
+22 RCL/ "M2"
+23 LN
+24 RCL "T1"
+25 RCL/ "T2"
+26 LN
+27 /
+28 STO "N"
+
+29 RCL "T1"
+30 RCL "N"
+31 Y^X
+32 RCLx "N"
+34 RCL/ "M1"
+35 1/X
+37 STO "F"
+
+38 RCL "T0"
+39 RCL "N"
+40 Y^X
+41 RCLx "F"
+42 RCLx "A"
+43 STO "R0"
+44 RTN
+45 END
+
+00 { 40-Byte Prgm }
+01>LBL "LC-T"
+02 SIN
+03 RCLx "E"
+04 LASTX
+05 1
+06 X<>Y
+07 -
+08 LASTX
+09 1
+10 +
+11 /
+12 X<>Y
+13 1
+14 X<>Y
+15 -
+16 LASTX
+17 1
+18 +
+19 X<>Y
+20 /
+21 RCL "E"
+22 Y^X
+23 x
+24 SQRT
+25 RTN
+26 END
+
+00 { 24-Byte Prgm }
+01>LBL "LC-M"
+02 COS
+03 LASTX
+04 SIN
+05 X^2
+06 RCL "E"
+07 X^2
+08 x
+09 +/-
+10 1
+11 +
+12 SQRT
+13 /
+14 RTN
+15 END
+
+# LC-CLV clean up temporary variables.
+
+01 LBL "LC-CLV"
+02 CLV "A"
+03 CLV "E"
+04 CLV "M1"
+05 CLV "M2"
+06 CLV "T1"
+07 CLV "T2"
+08 CLV "T0"
+08 CLV "N"
+08 CLV "F"
+08 CLV "R0"
+08 CLV "M"
+08 CLV "T"
+08 CLV "R"
+08 CLV "LAT0"
+08 RTN
+09 END

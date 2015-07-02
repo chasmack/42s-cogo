@@ -1,0 +1,192 @@
+# 42s-cogo - COGO routines for the HP 42s
+#
+# A->B - convert DMS azimuth to DMS bearing
+# B->A - convert DMS bearing to DMS azimuth
+# NE->AD - convert northing-easting (y,x) to DMS azimuth-distance (y,x)
+# AD->NE - convert DMS azimuth-distance (y,x) to northing-easting (y,x)
+# NE+ - add northing-easting (t,z) + (y,x) -> (y,x)
+# NE- - subtract northing-easting (t,z) - (y,x) -> (y,x)
+# DMS+ - add DMS angles (y) + (x) -> (x)
+# DMS- - add DMS angles (y) - (x) -> (x)
+# IDIV - integer division as implemented on the HP 33s
+#
+# DMS angles expressed as DDD.MMSSsss...
+# DMS bearings expressed as QDD.MMSSsss...
+# Quadrant prefix (Q) is 1=NE, 2=SE, 3=SW, 4=NW.
+#
+
+00 { 78-Byte Prgm }
+01>LBL "LDCOGO"
+02 ASSIGN "A->B" TO 01
+03 ASSIGN "B->A" TO 02
+04 ASSIGN "NE->AD" TO 03
+05 ASSIGN "AD->NE" TO 04
+06 ASSIGN "NE+" TO 05
+07 ASSIGN "NE-" TO 06
+10 ASSIGN "HMS+" TO 11
+11 ASSIGN "HMS-" TO 12
+12 RTN
+13 END
+
+00 { 107-Byte Prgm }
+01>LBL "A->B"
+02 R^
+03 STO "TMP"
+04 Rv
+05 ->HR
+06 360
+07 MOD
+08 ->HMS
+09 STO "AZI"
+10 ->HR
+11 STO "BRG"
+12 90
+13 +
+14 180
+15 XEQ "IDIV"
+16 180
+17 x
+18 RCL- "BRG"
+19 ABS
+20 ->HMS
+21 STO "BRG"
+22 CLX
+23 RCL "AZI"
+24 90
+25 XEQ "IDIV"
+26 100
+27 x
+28 100
+29 +
+30 RCL+ "BRG"
+31 ->HR
+32 ->HMS
+33 STO "BRG"
+34 RCL "TMP"
+35 Rv
+36 RTN
+37 END
+
+00 { 103-Byte Prgm }
+01>LBL "B->A"
+02 R^
+03 STO "TMP"
+04 Rv
+05 STO "BRG"
+06 ->HR
+07 100
+08 MOD
+09 STO "AZI"
+10 CLX
+11 RCL "BRG"
+12 100
+13 XEQ "IDIV"
+14 1
+15 -
+16 -1
+17 X<>Y
+18 Y^X
+19 STOx "AZI"
+20 CLX
+21 RCL "BRG"
+22 200
+23 XEQ "IDIV"
+24 180
+25 x
+26 RCL+ "AZI"
+27 360
+28 MOD
+29 ->HMS
+30 STO "AZI"
+31 RCL "TMP"
+32 Rv
+33 RTN
+34 END
+
+00 { 37-Byte Prgm }
+01>LBL "NE->AD"
+02 R^
+03 STO "TMP"
+04 Rv
+05 ->POL
+06 X<>Y
+07 +/-
+08 90
+09 +
+10 360
+11 MOD
+12 ->HMS
+13 X<>Y
+14 RCL "TMP"
+15 Rv
+16 RTN
+17 END
+
+00 { 32-Byte Prgm }
+01>LBL "AD->NE"
+02 R^
+03 STO "TMP"
+04 Rv
+05 X<>Y
+06 ->HR
+07 90
+08 -
+09 +/-
+10 X<>Y
+11 ->REC
+12 RCL "TMP"
+13 Rv
+14 RTN
+15 END
+
+00 { 16-Byte Prgm }
+01>LBL "NE+"
+02 RCL+ ST Z
+03 X<>Y
+04 RCL+ ST T
+05 X<>Y
+06 RTN
+07 END
+
+00 { 18-Byte Prgm }
+01>LBL "NE-"
+02 RCL- ST Z
+03 +/-
+04 X<>Y
+05 RCL- ST T
+06 +/-
+07 X<>Y
+08 RTN
+09 END
+
+00 { 25-Byte Prgm }
+01>LBL "IDIV"
+02 /
+03 ENTER
+04 IP
+05 X<>Y
+06 X>=Y?
+07 GTO 00
+08 CLX
+09 1
+10 -
+11 ENTER
+12>LBL 00
+13 CLX
+14 +
+15 RTN
+16 END
+
+00 { 35-Byte Prgm }
+01>LBL "VAR"
+02 RCL "DECLIN"
+03 X<>Y
+04 HMS-
+05 90
+06 RCL ST Y
+07 HMS+
+08 XEQ "A2B"
+09 X<>Y
+10 XEQ "A2B"
+11 RTN
+12 END

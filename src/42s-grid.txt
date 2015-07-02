@@ -1,0 +1,321 @@
+# 42s-grid - SPCS/grid routines for the HP 42s
+#
+# LDXLAT - load local base and grid target coordinates
+#   for grid to ground transforms (->GRID, ->GND).
+#   GND:  (X,Y) -> (XBASE, YBASE)
+#   GRID: (X,Y) -> (XGRID, YGRID)
+#   R/SF: (X,Y) -> (SF, ROT)
+#   Rotation (ROT) in decimal degrees.
+#
+# ->GRID - transform local coordinate (X,Y) to grid.
+#   Coordinate is rotated and scaled about the local base
+#   then translated to grid (XGRID-XBASE, YGRID-YBASE).
+#   A negative rotation value (ROT < 0) is clockwise.
+#   A scale factor less than unity (SF < 1) shortens distances.
+#
+# ->GND - transform grid coordinate (X,Y) to ground.
+#   Inverse of the ground to grid transformation.
+#
+# ->NE - convert lat/lon (decimal) to grid coordinates.
+#   The type of conversion is determined by ZONEID.
+#   A ZONEID ending in F will produce coordinates
+#   in US Survey Feet (1m = 3937/1200sft).
+#
+# ->GEO - convert grid coordinates to lat/lon (decimal)
+#   The type of conversion is determined by ZONEID.
+#   A ZONEID ending in F will expect coordinates
+#   in US Survey Feet (1m = 3937/1200sft).
+#
+# ->METRIC - convert meters to US survey feet (X) -> (X).
+#   Stack values other than (X) are preserved.
+#
+# ->SFT - convert US survey feet to meters (X) -> (X).
+#   Stack values other than (X) are preserved.
+#
+# ->P1 - temporary storage for x/y pairs.
+#   (X,Y) -> (X1,Y1).
+#
+# <-P1 - recall temporary storage for x/y pairs.
+#   (X1,Y1) -> (X,Y).
+#
+
+00 { 53-Byte Prgm }
+01>LBL "LDGRID"
+03 ASSIGN "->GRID" TO 07
+04 ASSIGN "->GND" TO 08
+02 ASSIGN "LDXLAT" TO 09
+05 ASSIGN "->NE" TO 13
+06 ASSIGN "->GEO" TO 14
+06 ASSIGN "SPZONE" TO 15
+06 ASSIGN "TMZONE" TO 16
+06 ASSIGN "UTMZONE" TO 17
+07 RTN
+08 END
+
+00 { 42-Byte Prgm }
+01>LBL "LDXLAT"
+01 CLMENU
+01 "GND"
+01 KEY 1 GTO 01
+01 "GRID"
+01 KEY 2 GTO 02
+01 "SF/R"
+01 KEY 3 GTO 03
+01 KEY 9 GTO 00
+00 LBL A
+18 MENU
+20 STOP
+21 GTO A
+01 LBL 01
+02 STO "XBASE"
+03 X<>Y
+04 STO "YBASE"
+04 X<>Y
+04 GTO 00
+01 LBL 02
+02 STO "XGRID"
+03 X<>Y
+04 STO "YGRID"
+04 X<>Y
+04 GTO 00
+01 LBL 03
+02 STO "ROT"
+03 X<>Y
+04 STO "SF"
+04 X<>Y
+04 GTO 00
+04 LBL 00
+04 CLMENU
+04 EXITALL
+04 SF 27
+04 RTN
+10 END
+
+00 { 92-Byte Prgm }
+01>LBL "->GRID"
+02 RCL- "XBASE"
+03 RCLx "SF"
+04 STO "X"
+05 Rv
+06 RCL- "YBASE"
+07 RCLx "SF"
+08 STO "Y"
+09 RCL "ROT"
+10 SIN
+11 LASTX
+12 COS
+13 RCLx "X"
+14 X<>Y
+15 RCLx "Y"
+16 -
+17 RCL+ "XGRID"
+18 RCL "ROT"
+19 COS
+20 LASTX
+21 SIN
+22 RCLx "X"
+23 X<>Y
+24 RCLx "Y"
+25 +
+26 RCL+ "YGRID"
+27 STO "Y"
+28 X<>Y
+29 STO "X"
+30 RTN
+31 END
+
+00 { 93-Byte Prgm }
+01>LBL "->GND"
+02 RCL- "XGRID"
+03 RCL/ "SF"
+04 STO "X"
+05 Rv
+06 RCL- "YGRID"
+07 RCL/ "SF"
+08 STO "Y"
+09 RCL "ROT"
+10 +/-
+11 SIN
+12 LASTX
+13 COS
+14 RCLx "X"
+15 X<>Y
+16 RCLx "Y"
+17 -
+18 RCL+ "XBASE"
+19 RCL "ROT"
+20 +/-
+21 COS
+22 LASTX
+23 SIN
+24 RCLx "X"
+25 X<>Y
+26 RCLx "Y"
+27 +
+28 RCL+ "YBASE"
+29 STO "Y"
+30 X<>Y
+31 STO "X"
+32 RTN
+33 END
+
+# ->NE - convert lat/lon (decimal) to grid coordinates
+
+00 { 112-Byte Prgm }
+01>LBL "->NE"
+03 STO "LON"
+04 Rv
+06 STO "LAT"
+40 1
+40 STO "ZUNITS"
+40 CLA
+40 ARCL "ZONEID"
+40 -1
+40 AROT
+40 Rv
+40 70
+40 POSA
+40 X!=0?
+40 GTO 01
+40 3937
+40 1200
+40 /
+40 STO "ZUNITS"
+40 LBL 01
+07 "UTM"
+08 ASTO ST X
+09 CLA
+10 ARCL "ZONEID"
+11 POSA
+12 X=0?
+13 GTO "TM->NE"
+14 "T"
+15 ASTO ST X
+16 CLA
+17 ARCL "ZONEID"
+18 POSA
+19 X=0?
+20 GTO "TM->NE"
+21 "L"
+22 ASTO ST X
+23 CLA
+24 ARCL "ZONEID"
+25 POSA
+26 X=0?
+27 GTO "LC->NE"
+28 "BAD ZONE: "
+29 ARCL "ZONEID"
+30 AVIEW
+31 RTN
+32 END
+
+# ->GEO - convert grid coordinates to lat/lon (decimal)
+# The type of conversion is determined by ZONEID.
+# A ZONEID ending in F will use/generate coordinates
+# in US Survey Feet (1m = 3937/1200sft).
+
+00 { 110-Byte Prgm }
+01>LBL "->GEO"
+02 STO "X"
+03 Rv
+04 STO "Y"
+40 1
+40 STO "ZUNITS"
+40 CLA
+40 ARCL "ZONEID"
+40 -1
+40 AROT
+40 Rv
+40 70
+40 POSA
+40 X!=0?
+40 GTO 01
+40 3937
+40 1200
+40 /
+40 STO "ZUNITS"
+40 STO/ "X"
+40 STO/ "Y"
+40 LBL 01
+05 "UTM"
+06 ASTO ST X
+07 CLA
+08 ARCL "ZONEID"
+09 POSA
+10 X=0?
+11 GTO "TM->GEO"
+12 "T"
+13 ASTO ST X
+14 CLA
+15 ARCL "ZONEID"
+16 POSA
+17 X=0?
+18 GTO "TM->GEO"
+19 "L"
+20 ASTO ST X
+21 CLA
+22 ARCL "ZONEID"
+23 POSA
+24 X=0?
+25 GTO "LC->GEO"
+26 "BAD ZONE: "
+27 ARCL "ZONEID"
+28 AVIEW
+29 RTN
+30 .END.
+
+00 { 38-Byte Prgm }
+01>LBL "->METER"
+02 STO "TMP"
+03 CLX
+04 3937
+05 STO/ "TMP"
+06 CLX
+07 1200
+08 RCLx "TMP"
+09 RTN
+10 END
+
+00 { 36-Byte Prgm }
+01>LBL "->SFT"
+02 STO "TMP"
+03 CLX
+04 1200
+05 STO/ "TMP"
+06 CLX
+07 3937
+08 RCLx "TMP"
+09 RTN
+10 END
+
+00 { 18-Byte Prgm }
+01>LBL "->P1"
+02 STO "X1"
+03 X<>Y
+04 STO "Y1"
+05 X<>Y
+06 RTN
+07 END
+
+00 { 16-Byte Prgm }
+01>LBL "<-P1"
+02 RCL "Y1"
+03 RCL "X1"
+04 RTN
+05 END
+
+00 { 18-Byte Prgm }
+01>LBL "->P2"
+02 STO "X2"
+03 X<>Y
+04 STO "Y2"
+05 X<>Y
+06 RTN
+07 END
+
+00 { 16-Byte Prgm }
+01>LBL "<-P2"
+02 RCL "Y2"
+03 RCL "X2"
+04 RTN
+05 .END.

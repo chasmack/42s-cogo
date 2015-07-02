@@ -1,0 +1,808 @@
+# 42s-grid-tm - routines for forward and inverse
+# calculation of Transverse Mercator grid coordinates
+
+# UTMZONE - set up UTM zone parameters, units are metric
+#
+# Params: (X) UTM zone number (10 -> 120W - 126W)
+
+00 { 76-Byte Prgm }
+01>LBL "UTMZONE"
+02 "UTM"
+03 AIP
+04 ASTO "ZONEID"
+05 6
+06 x
+07 183
+08 -
+09 STO "M0"
+10 5E5
+11 STO "X0"
+12 0
+13 STO "Y0"
+14 STO "P0"
+15 0.9996
+16 STO "K0"
+17 VIEW "ZONEID"
+18 RTN
+19 END
+
+# TMZONE - set up custom UTM zone constants.
+
+00 { 54-Byte Prgm }
+01>LBL "TMZONE"
+02 INPUT "P0"
+03 INPUT "M0"
+04 INPUT "K0"
+05 INPUT "X0"
+06 INPUT "Y0"
+07 "TM USR"
+08 ASTO "ZONEID"
+09 VIEW "ZONEID"
+10 RTN
+11 END
+
+# TM->NE - convert geographic coords to grid northing/easting.
+# Inverse of the grid to geographic calculation.
+
+00 { 636-Byte Prgm }
+01>LBL "TM->NE"
+02 XEQ "TM-INI"
+
+03 RCL "LAT"
+04 COS
+05 RCL "M0"
+06 RCL- "LON"
+07 ->RAD
+08 x
+09 STO "L"
+
+10 X^2
+11 STO "L2"
+
+12 RCL "LAT"
+13 COS
+14 X^2
+15 STO ST Y
+16 RCLx "U6"
+17 RCL+ "U4"
+18 RCLx ST Y
+19 RCL+ "U2"
+20 RCLx ST Y
+21 RCL+ "U0"
+22 RCL "LAT"
+23 COS
+24 x
+25 RCL "LAT"
+26 SIN
+27 x
+28 RCL "LAT"
+29 ->RAD
+30 +
+31 RCLx "K0"
+32 RCLx "R"
+33 STO "S"
+
+34 RCL "E12"
+35 RCL "LAT"
+36 COS
+37 X^2
+38 x
+39 STO "ET2"
+
+40 RCL "LAT"
+41 TAN
+42 X^2
+43 STO "PT2"
+
+44 RCL "LAT"
+45 SIN
+46 X^2
+47 RCLx "E2"
+48 1
+49 -
+50 +/-
+51 SQRT
+52 1/X
+53 RCLx "K0"
+54 RCLx "A"
+53 STO "R"
+
+55 RCL "LAT"
+56 TAN
+57 RCLx "R"
+58 2
+59 /
+60 STO "A2"
+
+61 RCL "ET2"
+62 4
+63 x
+64 9
+65 +
+66 RCLx "ET2"
+67 RCL- "PT2"
+68 5
+69 +
+70 12
+71 /
+72 STO "A4"
+
+73 RCL "PT2"
+74 -330
+75 x
+76 270
+77 +
+78 RCLx "ET2"
+79 RCL "PT2"
+80 X^2
+81 +
+82 RCL "PT2"
+83 58
+84 x
+85 -
+86 61
+87 +
+88 360
+89 /
+90 STO "A6"
+
+91 RCL "L2"
+92 RCLx "A6"
+93 RCL+ "A4"
+94 RCLx "L2"
+95 1
+96 +
+97 RCLx "L2"
+98 RCLx "A2"
+99 RCL+ "Y0"
+100 RCL- "S0"
+101 RCL+ "S"
+102 STO "Y"
+103 RCL "LAT"
+104 SIN
+105 X^2
+106 RCLx "E2"
+107 1
+108 -
+109 +/-
+110 SQRT
+111 1/X
+112 RCLx "K0"
+113 RCLx "A"
+114 +/-
+115 STO "A1"
+116 RCL "ET2"
+117 RCL- "PT2"
+118 1
+119 +
+120 6
+121 /
+122 STO "A3"
+123 RCL "PT2"
+124 -58
+125 x
+126 14
+127 +
+128 RCLx "ET2"
+129 RCL "PT2"
+130 X^2
+131 +
+132 RCL "PT2"
+133 18
+134 x
+135 -
+136 5
+137 +
+138 120
+139 /
+140 STO "A5"
+141 RCL "PT2"
+142 3
+143 Y^X
+144 +/-
+145 RCL "PT2"
+146 X^2
+147 179
+148 x
+149 +
+150 RCL "PT2"
+151 479
+152 x
+153 -
+154 61
+155 +
+156 5040
+157 /
+158 STO "A7"
+159 RCL "L2"
+160 RCLx "A7"
+161 RCL+ "A5"
+162 RCLx "L2"
+163 RCL+ "A3"
+164 RCLx "L2"
+165 1
+166 +
+167 RCLx "A1"
+168 RCLx "L"
+169 RCL+ "X0"
+170 STO "X"
+171 RCL "LAT"
+172 TAN
+173 X^2
+174 +/-
+175 2
+176 +
+177 15
+178 /
+179 RCLx "L2"
+180 RCL "ET2"
+181 X^2
+182 2
+183 x
+184 RCL "ET2"
+185 3
+186 x
+187 +
+188 1
+189 +
+190 3
+191 /
+192 +
+193 RCLx "L2"
+194 1
+195 +
+196 RCLx "L"
+197 RCL "LAT"
+198 TAN
+199 +/-
+200 x
+201 ->DEG
+202 STO "G"
+203 RCL "LAT"
+204 TAN
+205 X^2
+206 STO ST Y
+207 -24
+208 x
+209 9
+210 +
+211 RCLx "ET2"
+212 RCL ST Y
+213 4
+214 x
+215 -
+216 5
+217 +
+218 12
+219 /
+220 RCLx "L2"
+221 1
+222 +
+223 RCLx "L2"
+224 RCL "ET2"
+225 1
+226 +
+227 2
+228 /
+229 x
+230 1
+231 +
+232 RCLx "K0"
+233 STO "K"
+234 XEQ "TM-CLV"
+235 RCL "K"
+236 RCL "G"
+237 ->HMS
+238 RCL "Y"
+238 RCLx "ZUNITS"
+239 RCL "X"
+239 RCLx "ZUNITS"
+240 RTN
+241 END
+
+# TM->GEO - convert grid northing/easting to geographic coords.
+#   Lat/lon returned as decimal degrees, north latitudes
+#   are positive, west longitudes are negative.
+#   Set zone parameters and ZONEID prior to conversion.
+
+00 { 546-Byte Prgm }
+01>LBL "TM->GEO"
+02 XEQ "TM-INI"
+03 RCL "Y"
+04 RCL- "Y0"
+05 RCL+ "S0"
+06 RCL/ "K0"
+07 RCL/ "R"
+08 ->DEG
+09 STO "OM"
+10 RCL "OM"
+11 COS
+12 X^2
+13 STO ST Y
+14 RCLx "V6"
+15 RCL+ "V4"
+16 RCLx ST Y
+17 RCL+ "V2"
+18 RCLx ST Y
+19 RCL+ "V0"
+20 RCL "OM"
+21 COS
+22 x
+23 RCL "OM"
+24 SIN
+25 x
+26 RCL "OM"
+27 ->RAD
+28 +
+29 ->DEG
+30 STO "PF"
+31 RCL "PF"
+32 SIN
+33 X^2
+34 RCLx "E2"
+35 1
+36 -
+37 +/-
+38 SQRT
+39 1/X
+40 RCLx "A"
+41 RCLx "K0"
+42 STO "RF"
+43 RCL "X"
+44 RCL- "X0"
+45 RCL/ "RF"
+46 STO "Q"
+47 X^2
+48 STO "Q2"
+49 RCL "PF"
+50 COS
+51 X^2
+52 RCLx "E12"
+53 STO "ETF2"
+54 RCL "PF"
+55 TAN
+56 STO "TF"
+57 X^2
+58 STO "TF2"
+59 RCL "ETF2"
+60 1
+61 +
+62 RCLx "TF"
+63 -2
+64 /
+65 STO "B2"
+66 RCL "ETF2"
+67 X^2
+68 -4
+69 x
+70 RCL "TF2"
+71 -9
+72 x
+73 1
+74 +
+75 RCLx "ETF2"
+76 +
+77 RCL "TF2"
+78 3
+79 x
+80 +
+81 5
+82 +
+83 -12
+84 /
+85 STO "B4"
+86 RCL "TF2"
+87 X^2
+88 -90
+89 x
+90 RCL "TF2"
+91 252
+92 x
+93 -
+94 46
+95 +
+96 RCLx "ETF2"
+97 RCL "TF2"
+98 X^2
+99 45
+100 x
+101 +
+102 RCL "TF2"
+103 90
+104 x
+105 +
+106 61
+107 +
+108 360
+109 /
+110 STO "B6"
+111 RCL "Q2"
+112 RCLx "B6"
+113 RCL+ "B4"
+114 RCLx "Q2"
+115 1
+116 +
+117 RCLx "Q2"
+118 RCLx "B2"
+119 RCL "PF"
+120 ->RAD
+121 +
+122 ->DEG
+123 STO "LAT"
+124 RCL "ETF2"
+125 RCL "TF2"
+126 2
+127 x
+128 +
+129 1
+130 +
+131 -6
+132 /
+133 STO "B3"
+134 RCL "TF2"
+135 8
+136 x
+137 6
+138 +
+139 RCLx "ETF2"
+140 RCL "TF2"
+141 X^2
+142 24
+143 x
+144 +
+145 RCL "TF2"
+146 28
+147 x
+148 +
+149 5
+150 +
+151 120
+152 /
+153 STO "B5"
+154 RCL "TF2"
+155 3
+156 Y^X
+157 720
+158 x
+159 RCL "TF2"
+160 X^2
+161 1320
+162 x
+163 +
+164 RCL "TF2"
+165 662
+166 x
+167 +
+168 61
+169 +
+170 -5040
+171 /
+172 STO "B7"
+173 RCL "Q2"
+174 RCLx "B7"
+175 RCL+ "B5"
+176 RCLx "Q2"
+177 RCL+ "B3"
+178 RCLx "Q2"
+179 1
+180 +
+181 RCLx "Q"
+182 RCL "PF"
+183 COS
+184 /
+185 RCL "M0"
+186 ->RAD
+187 +
+188 ->DEG
+189 STO "LON"
+190 XEQ "TM-CLV"
+191 RCL "LAT"
+192 ->HMS
+193 RCL "LON"
+194 ->HMS
+195 RTN
+196 END
+
+00 { 572-Byte Prgm }
+01>LBL "TM-INI"
+02 6378137
+03 STO "A"
+04 298.257223563
+05 1/X
+06 STO "F"
+07 1
+08 -
+09 X^2
+10 1
+11 -
+12 +/-
+13 STO "E2"
+14 STO ST Y
+15 1
+16 -
+17 +/-
+18 /
+19 STO "E12"
+20 RCL "F"
+21 2
+22 RCL- "F"
+23 /
+24 STO "N"
+25 RCL "A"
+26 1
+27 RCL "N"
+28 -
+29 x
+30 1
+31 RCL "N"
+32 X^2
+33 -
+34 x
+35 1
+36 RCL "N"
+37 X^2
+38 9
+39 x
+40 4
+41 /
+42 +
+43 RCL "N"
+44 4
+45 Y^X
+46 225
+47 x
+48 64
+49 /
+50 +
+51 x
+52 STO "R"
+
+53 RCL "N"
+54 3
+55 x
+56 2
+57 /
+58 +/-
+59 RCL "N"
+60 3
+61 Y^X
+62 9
+63 x
+64 16
+65 /
+66 +
+67 STO "U2"
+68 RCL "N"
+69 X^2
+70 15
+71 x
+72 16
+73 /
+74 RCL "N"
+75 4
+76 Y^X
+77 15
+78 x
+79 32
+80 /
+81 -
+82 STO "U4"
+83 RCL "N"
+84 3
+85 Y^X
+86 -35
+87 x
+88 48
+89 /
+90 STO "U6"
+91 RCL "N"
+92 4
+93 Y^X
+94 315
+95 x
+96 512
+97 /
+98 STO "U8"
+99 RCL "U2"
+100 RCL "U4"
+101 2
+102 x
+103 -
+104 RCL "U6"
+105 3
+106 x
+107 +
+108 RCL "U8"
+109 4
+110 x
+111 -
+112 2
+113 x
+114 STO "U0"
+115 RCL "U4"
+116 RCL "U6"
+117 4
+118 x
+119 -
+120 RCL "U8"
+121 10
+122 x
+123 +
+124 8
+125 x
+126 STO "U2"
+127 RCL "U6"
+128 RCL "U8"
+129 6
+130 x
+131 -
+132 32
+133 x
+134 STO "U4"
+135 RCL "U8"
+136 128
+137 x
+138 STO "U6"
+139 RCL "N"
+140 3
+141 x
+142 2
+143 /
+144 RCL "N"
+145 3
+146 Y^X
+147 27
+148 x
+149 32
+150 /
+151 -
+152 STO "V2"
+153 RCL "N"
+154 X^2
+155 21
+156 x
+157 16
+158 /
+159 RCL "N"
+160 4
+161 Y^X
+162 55
+163 x
+164 32
+165 /
+166 -
+167 STO "V4"
+168 RCL "N"
+169 3
+170 Y^X
+171 151
+172 x
+173 96
+174 /
+175 STO "V6"
+176 RCL "N"
+177 4
+178 Y^X
+179 1097
+180 x
+181 512
+182 /
+183 STO "V8"
+184 RCL "V2"
+185 RCL "V4"
+186 2
+187 x
+188 -
+189 RCL "V6"
+190 3
+191 x
+192 +
+193 RCL "V8"
+194 4
+195 x
+196 -
+197 2
+198 x
+199 STO "V0"
+
+200 RCL "V4"
+201 RCL "V6"
+202 4
+203 x
+204 -
+205 RCL "V8"
+206 10
+207 x
+208 +
+209 8
+210 x
+211 STO "V2"
+
+212 RCL "V6"
+213 RCL "V8"
+214 6
+215 x
+216 -
+217 32
+218 x
+219 STO "V4"
+
+220 RCL "V8"
+221 128
+222 x
+223 STO "V6"
+
+224 RCL "P0"
+225 COS
+226 X^2
+227 STO ST Y
+228 RCLx "U6"
+229 RCL+ "U4"
+230 RCLx ST Y
+231 RCL+ "U2"
+232 RCLx ST Y
+233 RCL+ "U0"
+234 RCL "P0"
+235 COS
+238 x
+236 RCL "P0"
+237 SIN
+239 x
+240 RCL "P0"
+241 ->RAD
+242 +
+243 RCLx "K0"
+244 RCLx "R"
+245 STO "S0"
+
+246 RTN
+247 END
+
+00 { 186-Byte Prgm }
+01>LBL "TM-CLV"
+02 CLV "A"
+03 CLV "F"
+04 CLV "S0"
+05 CLV "R"
+06 CLV "N"
+07 CLV "E2"
+08 CLV "E12"
+09 CLV "S0"
+10 CLV "U0"
+11 CLV "U2"
+12 CLV "U4"
+13 CLV "U6"
+14 CLV "U8"
+15 CLV "V0"
+16 CLV "V2"
+17 CLV "V4"
+18 CLV "V6"
+19 CLV "V8"
+20 CLV "L"
+21 CLV "L2"
+22 CLV "S"
+23 CLV "ET2"
+24 CLV "PT2"
+25 CLV "A1"
+26 CLV "A2"
+27 CLV "A3"
+28 CLV "A4"
+29 CLV "A5"
+30 CLV "A6"
+31 CLV "A7"
+32 CLV "OM"
+33 CLV "PF"
+34 CLV "RF"
+35 CLV "Q"
+36 CLV "Q2"
+37 CLV "ETF2"
+38 CLV "TF"
+39 CLV "TF2"
+40 CLV "B2"
+41 CLV "B3"
+42 CLV "B4"
+43 CLV "B5"
+44 CLV "B6"
+45 CLV "B7"
+46 RTN
+47 END
