@@ -1,2 +1,2 @@
-# 42s-survey
-Cogo routines for the HP42s calculator
+# 42s-cogo
+Cogo routines for the HP42s calculator.
