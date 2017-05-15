@@ -1,0 +1,159 @@
+# 42s-ecef - ECEF transformation routines for the HP 42s
+#
+# EL->CART - convert lat/lon/ht (decimal deg/meters) to cartesian x/y/z (meters)
+# CART->EL - convert cartesian x/y/z (meters) to lat/lon/ht (decimal deg/meters)
+#
+
+# Load programs into the custom menu
+
+00 { 28-Byte Prgm }
+01>LBL "LDECEF"
+02 ASSIGN "->CART" TO 07
+03 ASSIGN "->ELLIP" TO 08
+04 RTN
+05 END
+
+# Ellipsoidal LON/LAT/HT to Cartesian X/Y/Z
+
+00 { 136-Byte Prgm }
+01>LBL "->CART"
+02 STO "LON"
+03 Rv
+04 STO "LAT"
+05 Rv
+06 STO "HT"
+07 Rv
+08 STO "TMP"
+09 XEQ "W84-INI"
+10 RCL "A"
+11 RCL "LAT"
+12 SIN
+13 X^2
+14 RCLx "E2"
+15 +/-
+16 1
+17 +
+18 SQRT
+19 /
+20 STO "N"
+21 RCL+ "HT"
+22 RCL "LAT"
+23 COS
+24 x
+25 STO "X"
+26 STO "Y"
+27 RCL "LON"
+28 COS
+29 STOx "X"
+30 RCL "LON"
+31 SIN
+32 STOx "Y"
+33 1
+34 RCL- "E2"
+35 RCLx "N"
+36 RCL+ "HT"
+37 RCL "LAT"
+38 SIN
+39 x
+40 STO "Z"
+41 RCL "TMP"
+42 RCL "Z"
+43 RCL "Y"
+44 RCL "X"
+45 RTN
+46 END
+
+# Cartesian X/Y/Z to Ellipsoidal LON/LAT/HT
+
+00 { 185-Byte Prgm }
+01>LBL "->ELLIP"
+02 STO "X"
+03 Rv
+04 STO "Y"
+05 Rv
+06 STO "Z"
+07 Rv
+08 STO "TMP"
+09 XEQ "W84-INI"
+10 RCL "Y"
+11 RCL "X"
+12 ->POL
+13 STO "P"
+14 Rv
+15 STO "LON"
+16 0
+17 STO "LAT"
+18>LBL 01
+19 RCL "A"
+20 RCL "LAT"
+21 SIN
+22 X^2
+23 RCLx "E2"
+24 +/-
+25 1
+26 +
+27 SQRT
+28 /
+29 RCL "LAT"
+30 COS
+31 x
+32 RCLx "E2"
+33 RCL/ "P"
+34 +/-
+35 1
+36 +
+37 RCL "Z"
+38 X<>Y
+39 /
+40 RCL/ "P"
+41 ATAN
+42 RCL "LAT"
+43 X<>Y
+44 STO "LAT"
+45 -
+46 ABS
+47 1E-12
+48 X<Y?
+49 GTO 01
+50 RCL "A"
+51 RCL "LAT"
+52 SIN
+53 X^2
+54 RCLx "E2"
+55 +/-
+56 1
+57 +
+58 SQRT
+59 /
+60 +/-
+61 RCL "P"
+62 RCL "LAT"
+63 COS
+64 /
+65 +
+66 STO "HT"
+67 RCL "TMP"
+68 RCL "HT"
+69 RCL "LAT"
+70 RCL "LON"
+71 RTN
+72 END
+
+# Initialize WGS84 constants
+
+00 { 52-Byte Prgm }
+01>LBL "W84-INI"
+02 6378137
+03 STO "A"
+04 298.257223563
+05 1/X
+06 STO "F"
+07 X^2
+08 LASTX
+09 2
+10 x
+11 X<>Y
+12 -
+13 STO "E2"
+14 RTN
+15 .END.
