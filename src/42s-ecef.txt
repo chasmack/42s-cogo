@@ -1,4 +1,6 @@
-# 42s-ecef - ECEF transformation routines for the HP 42s
+# 42s-ecef - ECEF transformation routines for the HP 42s base on
+# Global Positioning System by misra and Enge, Revised Second Edition,
+# Appendix 4.A.1, Conversion between Geodetic and Cartesian Coordinates
 #
 # EL->CART - convert lat/lon/ht (decimal deg/meters) to cartesian x/y/z (meters)
 # CART->EL - convert cartesian x/y/z (meters) to lat/lon/ht (decimal deg/meters)
@@ -13,6 +15,21 @@
 04 RTN
 05 END
 
+# Remove programs from memory and the custom menu
+
+# 00 { 64-Byte Prgm }
+# 01>LBL "RMECEF"
+# Clear custom key assignment doesn't compile correctly
+# 02 ASSIGN "" TO 07
+# 03 ASSIGN "" TO 08
+# 04 CLP "->CART"
+# 05 CLP "->ELLIP"
+# 06 CLP "W84-INI"
+# 07 CLP "ECEF-N"
+# 08 CLP "LDECEF"
+# 09 CLP "RMECEF"
+# 10 END
+
 # Ellipsoidal LON/LAT/HT to Cartesian X/Y/Z
 
 00 { 136-Byte Prgm }
@@ -25,17 +42,7 @@
 07 Rv
 08 STO "TMP"
 09 XEQ "W84-INI"
-10 RCL "A"
-11 RCL "LAT"
-12 SIN
-13 X^2
-14 RCLx "E2"
-15 +/-
-16 1
-17 +
-18 SQRT
-19 /
-20 STO "N"
+10 XEQ "ECEF-N"
 21 RCL+ "HT"
 22 RCL "LAT"
 23 COS
@@ -84,16 +91,7 @@
 16 0
 17 STO "LAT"
 18>LBL 01
-19 RCL "A"
-20 RCL "LAT"
-21 SIN
-22 X^2
-23 RCLx "E2"
-24 +/-
-25 1
-26 +
-27 SQRT
-28 /
+19 XEQ "ECEF-N"
 29 RCL "LAT"
 30 COS
 31 x
@@ -115,16 +113,7 @@
 47 1E-12
 48 X<Y?
 49 GTO 01
-50 RCL "A"
-51 RCL "LAT"
-52 SIN
-53 X^2
-54 RCLx "E2"
-55 +/-
-56 1
-57 +
-58 SQRT
-59 /
+50 XEQ "ECEF-N"
 60 +/-
 61 RCL "P"
 62 RCL "LAT"
@@ -156,4 +145,22 @@
 12 -
 13 STO "E2"
 14 RTN
-15 .END.
+15 END
+
+
+# ECEF-N - calculate the WGS84 radius of curvature in the prime vertical
+
+00 LBL "ECEF-N"
+10 RCL "A"
+11 RCL "LAT"
+12 SIN
+13 X^2
+14 RCLx "E2"
+15 +/-
+16 1
+17 +
+18 SQRT
+19 /
+20 STO "N"
+00 RTN
+00 END
